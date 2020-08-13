@@ -88,9 +88,10 @@ methodmap DiscordBot < StringMap {
 		Handle channels = this.GetListeningChannels();
 		if(channels == null) return;
 		
+		static char tempID[32];
+		
 		for(int i = 0; i < json_array_size(channels); i++) {
 			DiscordChannel tempChannel = view_as<DiscordChannel>(json_array_get(channels, i));
-			static char tempID[32];
 			tempChannel.GetID(tempID, sizeof(tempID));
 			if(StrEqual(id, tempID, false)) {
 				json_array_remove(channels, i);
@@ -100,6 +101,18 @@ methodmap DiscordBot < StringMap {
 		}
 		delete channels;
 	}
+	
+	public void StopListeningToChannels()
+	{
+		Handle channels = this.GetListeningChannels();
+		if(channels == null) return;
+		for(int i = 0; i < json_array_size(channels); i++)
+		{
+			json_array_remove(channels, i);
+		}
+		delete channels;
+	}
+
 	
 	/**
 	 * Stops the bot from listening to that channel id for messages
