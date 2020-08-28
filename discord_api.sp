@@ -1,4 +1,5 @@
 #pragma semicolon 1
+#pragma dynamic 25000
 
 #define PLUGIN_VERSION "0.1.103"
 
