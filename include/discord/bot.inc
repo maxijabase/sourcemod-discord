@@ -96,8 +96,8 @@ methodmap DiscordBot < StringMap {
 			if(StrEqual(id, tempID, false)) {
 				json_array_remove(channels, i);
 				i--;
-				delete tempChannel;
 			}
+			delete tempChannel;
 		}
 		delete channels;
 	}
@@ -129,8 +129,8 @@ methodmap DiscordBot < StringMap {
 			if(StrEqual(id, tempID, false)) {
 				json_array_remove(channels, i);
 				i--;
-				delete tempChannel;
 			}
+			delete tempChannel;
 		}
 		delete channels;
 	}

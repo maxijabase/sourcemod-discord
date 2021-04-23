@@ -102,7 +102,7 @@ methodmap MessageEmbed < Handle {
 		json_object_set_new(hObj, "value", json_string(value));
 		json_object_set_new(hObj, "inline", json_boolean(inline));
 		Handle hArray = this.Fields;
-		if(this.Fields == null) {
+		if(hArray == null) {
 			hArray = json_array();
 		}
 		json_array_append_new(hArray, hObj);
