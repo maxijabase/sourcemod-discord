@@ -49,7 +49,7 @@ methodmap DiscordRequest < Handle {
 	
 	public void SetJsonBody(Handle hJson)
 	{
-		if (this != INVALID_HANDLE)
+		if (this != INVALID_HANDLE && this != null)
 		{
 			static char stringJson[16384];
 			stringJson[0] = '\0';
@@ -63,7 +63,7 @@ methodmap DiscordRequest < Handle {
 	
 	public void SetJsonBodyEx(Handle hJson)
 	{
-		if (this != INVALID_HANDLE)
+		if (this != INVALID_HANDLE && this != null)
 		{
 			static char stringJson[16384];
 			stringJson[0] = '\0';
@@ -77,38 +77,38 @@ methodmap DiscordRequest < Handle {
 	property int Timeout {
 		public set(int timeout)
 		{
-			if (this != INVALID_HANDLE)
+			if (this != INVALID_HANDLE && this != null)
 				SteamWorks_SetHTTPRequestNetworkActivityTimeout(this, timeout);
 		}
 	}
 	
 	public void SetCallbacks(SteamWorksHTTPRequestCompleted OnComplete, SteamWorksHTTPDataReceived DataReceived)
 	{
-		if (this != INVALID_HANDLE)
+		if (this != INVALID_HANDLE && this != null)
 			SteamWorks_SetHTTPCallbacks(this, OnComplete, HeadersReceived, DataReceived);
 	}
 	
 	public void SetContextValue(any data1, any data2)
 	{
-		if (this != INVALID_HANDLE)
+		if (this != INVALID_HANDLE && this != null)
 			SteamWorks_SetHTTPRequestContextValue(this, data1, data2);
 	}
 	
 	public void SetData(any data1, char[] route)
 	{
-		if (this != INVALID_HANDLE)
+		if (this != INVALID_HANDLE && this != null)
 			SteamWorks_SetHTTPRequestContextValue(this, data1, UrlToDP(route));
 	}
 	
 	public void SetBot(DiscordBot bot)
 	{
-		if (this != INVALID_HANDLE)
+		if (this != INVALID_HANDLE && this != null)
 			BuildAuthHeader(this, bot);
 	}
 	
 	public void Send(char[] route)
 	{
-		if (this != INVALID_HANDLE)
+		if (this != INVALID_HANDLE && this != null)
 			DiscordSendRequest(this, route);
 	}
 }
