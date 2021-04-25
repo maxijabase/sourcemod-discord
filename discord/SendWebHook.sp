@@ -59,11 +59,15 @@ public void SendWebHook(DiscordWebHook hook) {
 	request.SetJsonBodyEx(hJson);
 	//Handle request = PrepareRequestRaw(null, url, k_EHTTPMethodPOST, hJson, SendWebHookReceiveData);
 	if(request == null) {
-		CreateTimer(2.0, SendWebHookDelayed, hJson);
+		CreateTimer(2.0, SendWebHookDelayed, hook);
 		return;
 	}
 	
-	request.SetContextValue(hJson, UrlToDP(url));
+	//request.SetContextValue(hJson, UrlToDP(url));
+	DataPack pack = new DataPack();
+	pack.WriteCell(hJson);
+	pack.WriteCell(view_as<int>(hook));
+	request.SetContextValue(pack, UrlToDP(url));
 	
 	//DiscordSendRequest(request, url);
 	request.Send(url);
@@ -73,26 +77,31 @@ public Action SendWebHookDelayed(Handle timer, any data) {
 	SendWebHook(view_as<DiscordWebHook>(data));
 }
 
-public SendWebHookReceiveData(Handle request, bool failure, int offset, int statuscode, any dp) {
+public SendWebHookReceiveData(Handle request, bool failure, int offset, int statuscode, any datapack) {
+	DataPack dp = view_as<DataPack>(datapack);
+	dp.Reset();
+	Handle hJson = dp.ReadCell();
+	DiscordWebHook hook = dp.ReadCell();
+	delete dp;
 	if(failure || (statuscode != 200 && statuscode != 204)) {
 		if(statuscode == 400) {
 			PrintToServer("BAD REQUEST");
-			SteamWorks_GetHTTPResponseBodyCallback(request, WebHookData, dp);
+			SteamWorks_GetHTTPResponseBodyCallback(request, WebHookData, hJson);
 		}
 		
 		if(statuscode == 429 || statuscode == 500) {
-			SendWebHook(view_as<DiscordWebHook>(dp));
+			SendWebHook(view_as<DiscordWebHook>(hook));
 			
 			delete request;
 			return;
 		}
 		LogError("[DISCORD] Couldn't Send Webhook - Fail %i %i", failure, statuscode);
 		delete request;
-		delete view_as<Handle>(dp);
+		delete hJson;
 		return;
 	}
 	delete request;
-	delete view_as<Handle>(dp);
+	delete hJson;
 }
 
 public int WebHookData(const char[] data, any dp) {
