@@ -1,11 +1,10 @@
 #pragma semicolon 1
 #pragma dynamic 25000
 
-#define PLUGIN_VERSION "0.1.107"
-
 #include <sourcemod>
 #include <discord>
 #include <SteamWorks>
+#include <updater>
 #include <smjansson>
 
 #include "discord/natives.sp"
@@ -22,17 +21,19 @@
 #include "discord/GuildRole.sp"
 #include "discord/deletemessage.sp"
 
+#define UPDATE_URL "https://raw.githubusercontent.com/maxijabase/sourcemod-discord/master/updatefile.txt"
+
 //For rate limitation
 Handle hRateLimit = null;
 Handle hRateReset = null;
 Handle hRateLeft = null;
 
-public Plugin myinfo =  {
-	name = "Discord API",
-	author = "Deathknife",
-	description = "",
-	version = PLUGIN_VERSION,
-	url = ""
+public Plugin myinfo = {
+	name = "[API] Discord API",
+	author = "Deathknife (ampere version)",
+	description = "API to interact with Discord",
+	version = "1.0",
+	url = "github.com/maxijabase/sourcemod-discord"
 };
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
@@ -47,6 +48,19 @@ public void OnPluginStart() {
 	hRateLeft = new StringMap();
 	hRateReset = new StringMap();
 	hRateLimit = new StringMap();
+
+	if (LibraryExists("updater"))
+    {
+        Updater_AddPlugin(UPDATE_URL);
+    }
+}
+
+public void OnLibraryAdded(const char[] name)
+{
+    if (StrEqual(name, "updater"))
+    {
+        Updater_AddPlugin(UPDATE_URL);
+    }
 }
 
 public int Native_DiscordBot_Token_Get(Handle plugin, int numParams) {
