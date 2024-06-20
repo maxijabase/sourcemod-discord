@@ -4,12 +4,12 @@ methodmap MessageEmbed < Handle {
 		return view_as<MessageEmbed>(hObj);
 	}
 
-	public bool GetColor(char[] buffer, int maxlength) {
-		return JsonObjectGetString(this, "color", buffer, maxlength);
+	public int GetColor() {
+		return json_object_get_int(this, "color");
 	}
 
-	public void SetColor(const char[] color) {
-		json_object_set_new(this, "color", json_string(color));
+	public void SetColor(int color) {
+		json_object_set_new(this, "color", json_integer(color));
 	}
 
 	public bool GetTitle(char[] buffer, int maxlength) {

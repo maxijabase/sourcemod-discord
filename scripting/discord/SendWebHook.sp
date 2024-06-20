@@ -20,7 +20,7 @@ public void SendWebHook(DiscordWebHook hook) {
 		
 		RenameJsonObject(hJson, "content", "text");
 		RenameJsonObject(hJson, "embeds", "attachments");
-		
+		RenameJsonObject(hJson, "avatar_url", "icon_url");
 		Handle hAttachments = json_object_get(hJson, "attachments");
 		if(hAttachments != null) {
 			if(json_is_array(hAttachments)) {
