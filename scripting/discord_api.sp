@@ -24,7 +24,7 @@
 
 #define UPDATE_URL "https://raw.githubusercontent.com/maxijabase/sourcemod-discord/master/updatefile.txt"
 
-//For rate limitation
+// For rate limitation
 Handle hRateLimit = null;
 Handle hRateReset = null;
 Handle hRateLeft = null;

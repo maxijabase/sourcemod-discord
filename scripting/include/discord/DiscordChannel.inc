@@ -6,7 +6,7 @@ methodmap DiscordChannel < JSONObject
         return view_as<DiscordChannel>(obj);
     }
     
-    public native void SendMessage(DiscordBot Bot, char[] message, OnMessageSent callback, any data = 0);
+    public native void SendMessage(DiscordBot Bot, char[] message, DiscordMessageSentResponseCallback callback, any data = 0);
     
     public void GetGuildID(char[] buffer, int maxlength)
     {

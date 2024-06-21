@@ -24,15 +24,15 @@ methodmap DiscordBot < JSONObject
             this.SetFloat("messageInterval", value);
         }
     }
-    
-    public native void StartTimer(DiscordChannel channel, OnChannelMessage callback);
+
+    public native void StartTimer(DiscordChannel channel, DiscordMessageReceivedResponseCallback callback);
     
     public JSONArray GetListeningChannels()
     {
-        return this.Get("listeningChannels");
+        return view_as<JSONArray>(this.Get("listeningChannels"));
     }
     
-    public void StartListeningToChannel(DiscordChannel channel, OnChannelMessage callback)
+    public void StartListeningToChannel(DiscordChannel channel, DiscordMessageReceivedResponseCallback callback)
     {
         if (this.IsListeningToChannel(channel))
         {
@@ -235,31 +235,20 @@ methodmap DiscordBot < JSONObject
         this.DeleteReactionID(channel, messageId, emoji, "@all");
     }
     
-    public native void GetReactionID(const char[] channel, const char[] messageId, const char[] emoji, OnGetReactions callback, any data = 0);
-    
-    public void GetReaction(DiscordChannel channel, const char[] messageId, const char[] emoji, OnGetReactions callback, any data = 0)
-    {
-        char id[64];
-        channel.GetID(id, sizeof(id));
-        this.GetReactionID(id, messageId, emoji, callback, data);
-    }
-    
     public native void GetToken(char[] token, int maxlength);
     
-    public native void SendMessage(DiscordChannel channel, char[] message, OnMessageSent callback, any data = 0);
+    public native void SendMessage(DiscordChannel channel, char[] message, DiscordMessageSentResponseCallback callback, any data = 0);
     
-    public native void SendMessageToChannelID(char[] channel, char[] message, OnMessageSent callback, any data = 0);
+    public native void SendMessageToChannelID(char[] channel, char[] message, DiscordMessageSentResponseCallback callback, any data = 0);
     
-    public native void DeleteMessageID(char[] channel, char[] message, OnMessageDeleted callback, any data = 0);
-    public native void DeleteMessage(DiscordChannel channel, DiscordMessage message, OnMessageDeleted callback, any data = 0);
+    public native void DeleteMessageID(char[] channel, char[] message, DiscordMessageDeletedResponseCallback callback, any data = 0);
+    public native void DeleteMessage(DiscordChannel channel, DiscordMessage message, DiscordMessageDeletedResponseCallback callback, any data = 0);
     
-    public native void GetGuilds(DiscordGuildsRetrieve callback, DiscordGuildsRetrievedAll callbackAll, any data = 0);
+    public native void GetGuilds(DiscordGuildsResponseCallback callback, any data = 0);
     
-    public native void GetGuildChannels(char[] guild, DiscordGuildChannelsRetrieve callback, DiscordGuildChannelsRetrieveAll callbackAll, any data = 0);
+    public native void GetGuildChannels(char[] guild, DiscordGuildChannelsResponseCallback callback, any data = 0);
     
-    public native void GetGuildMembers(char[] guild, OnGetMembers callback, int limit = 250, char[] afterUserID = "");
+    public native void GetGuildMembers(char[] guild, DiscordGuildMembersResponseCallback callback, int limit = 250, char[] afterUserID = "", any data = 0);
     
-    public native void GetGuildMembersAll(char[] guild, OnGetMembers callback, int perPage = 250, char[] afterUserID = "");
-    
-    public native void GetGuildRoles(char[] guild, DiscordGuildGetRoles callback, any data);
+    public native void GetGuildRoles(char[] guild, DiscordGuildRolesResponseCallback callback, any data = 0);
 };

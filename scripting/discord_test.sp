@@ -3,7 +3,7 @@
 #define PLUGIN_VERSION "1.10"
 
 #include <sourcemod>
-#include <discord>
+#include "discord"
 
 #define BOT_TOKEN ""
 #define WEBHOOK ""

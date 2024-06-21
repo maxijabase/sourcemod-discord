@@ -6,35 +6,46 @@
 #include <smjansson>
 #include <ripext>
 
-typedef DiscordGuildsRetrieve = function void (DiscordBot bot, char[] id, char[] name, char[] icon, bool owner, int permissions, any data);
+typeset DiscordGuildsResponseCallback
+{
+	function void(DiscordBot bot, char[] id, char[] name, char[] icon, bool owner, int permissions);
+	function void(DiscordBot bot, char[] id, char[] name, char[] icon, bool owner, int permissions, any data);
+}
 
-typedef DiscordGuildsRetrievedAll = function void (DiscordBot bot, ArrayList id, ArrayList name, ArrayList icon, ArrayList owner, ArrayList permissions, any data);
+typeset DiscordGuildChannelsResponseCallback
+{
+	function void (DiscordBot bot, char[] guild, DiscordChannel channel);
+	function void (DiscordBot bot, char[] guild, DiscordChannel channel, any data);
+}
 
-//Channel are Handles that are closed immediately after forwards called. To keep, clone. Or store id if thats what you want
-typedef DiscordGuildChannelsRetrieve = function void (DiscordBot bot, char[] guild, DiscordChannel Channel, any data);
+typeset DiscordGuildRolesResponseCallback
+{
+	function void (DiscordBot bot, char[] guild, RoleList Roles);
+	function void (DiscordBot bot, char[] guild, RoleList Roles, any data);
+}
 
-typedef DiscordGuildChannelsRetrieveAll = function void (DiscordBot bot, char[] guild, ArrayList Channels, any data);
+typeset DiscordGuildMembersResponseCallback
+{
+	function void(DiscordBot bot, char[] guild, JSONArray members);
+	function void(DiscordBot bot, char[] guild, JSONArray members, any data);
+}
 
-typedef DiscordGuildGetRoles = function void (DiscordBot bot, char[] guild, RoleList Roles, any data);
-
-/** 
- * Called when message is received
- * bot/channel/message are all destroyed after callback is sent.
- * You can clone it if need to keep.
- */
-typeset OnChannelMessage
+typeset DiscordMessageReceivedResponseCallback
 { 
 	function void(DiscordBot bot, DiscordChannel channel, DiscordMessage message);
+	function void(DiscordBot bot, DiscordChannel channel, DiscordMessage message, any data);
 };
 
-typedef OnGetReactions = function void (DiscordBot bot, ArrayList Users, char[] channelID, const char[] messageID, const char[] emoji, any data);
+typeset DiscordMessageSentResponseCallback
+{
+	function void(DiscordBot bot, char[] channel, DiscordMessage message, any data);
+}
 
-typedef OnMessageSent = function void(DiscordBot bot, char[] channel, DiscordMessage message, any data);
-
-typedef OnMessageDeleted = function void(DiscordBot bot, any data);
-
-// hMemberList is JSON array containing guild members
-typedef OnGetMembers = function void(DiscordBot bot, char[] guild, Handle hMemberList);
+typeset DiscordMessageDeletedResponseCallback
+{
+	function void(DiscordBot bot);
+	function void(DiscordBot bot, any data);
+}
 
 #include "discord/DiscordBot"
 #include "discord/DiscordRole"

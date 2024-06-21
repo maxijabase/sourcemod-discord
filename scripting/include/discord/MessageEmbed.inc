@@ -110,12 +110,12 @@ methodmap MessageEmbed < JSONObject
     {
         public get()
         {
-            return this.Get("fields");
+            return view_as<JSONArray>(this.Get("fields"));
         }
         
         public set(JSONArray value)
         {
-            return this.Set("fields", value);
+            this.Set("fields", value);
         }
     }
     

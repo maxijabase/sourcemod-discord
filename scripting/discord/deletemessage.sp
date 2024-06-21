@@ -1,129 +1,49 @@
-public int Native_DiscordBot_DeleteMessageID(Handle plugin, int numParams) {
+public int Native_DiscordBot_DeleteMessageID(Handle plugin, int numParams)
+{
+    // Get native params
     DiscordBot bot = GetNativeCell(1);
-    
-    char channelid[64];
-    GetNativeString(2, channelid, sizeof(channelid));
-    
-    char msgid[64];
-    GetNativeString(3, msgid, sizeof(msgid));
-    
-    Function fCallback = GetNativeCell(4);
+    char channelId[64];
+    GetNativeString(2, channelId, sizeof(channelId));
+    char messageId[64];
+    GetNativeString(3, messageId, sizeof(messageId));
+    Function cb = GetNativeCell(4);
     any data = GetNativeCell(5);
     
-    DataPack dp = CreateDataPack();
-    WritePackCell(dp, bot);
-    WritePackString(dp, channelid);
-    WritePackString(dp, msgid);
-    WritePackCell(dp, plugin);
-    WritePackFunction(dp, fCallback);
-    WritePackCell(dp, data);
+    // DataPack
+    DataPack pack = new DataPack();
+    pack.WriteCell(bot);
+    pack.WriteCell(plugin);
+    pack.WriteFunction(callback);
+    pack.WriteCell(data);
     
-    ThisDeleteMessage(bot, channelid, msgid, dp);
+    // Make URL
+    char url[128];
+    Format(url, sizeof(url), "https://discord.com/api/channels/%s/messages/%s", channelId, messageId);
+
+    // Create and send request
+    DiscordRequest request = new DiscordRequest(url);
+    request.SetBot(bot);
+    request.Delete(OnMessageDeleted, pack);
+    return 0;
 }
 
-public int Native_DiscordBot_DeleteMessage(Handle plugin, int numParams) {
-    DiscordBot bot = GetNativeCell(1);
-    
-    char channelid[64];
-    DiscordChannel channel = GetNativeCell(2);
-    channel.GetID(channelid, sizeof(channelid));
-    
-    char msgid[64];
-    DiscordMessage msg = GetNativeCell(3);
-    msg.GetID(msgid, sizeof(msgid));
-    
-    Function fCallback = GetNativeCell(4);
-    any data = GetNativeCell(5);
-    
-    DataPack dp = CreateDataPack();
-    WritePackCell(dp, bot);
-    WritePackString(dp, channelid);
-    WritePackString(dp, msgid);
-    WritePackCell(dp, plugin);
-    WritePackFunction(dp, fCallback);
-    WritePackCell(dp, data);
-    
-    ThisDeleteMessage(bot, channelid, msgid, dp);
-}
-
-static void ThisDeleteMessage(DiscordBot bot, char[] channelid, char[] msgid, DataPack dp) {
-    char url[64];
-    FormatEx(url, sizeof(url), "channels/%s/messages/%s", channelid, msgid);
-    
-    Handle request = PrepareRequest(bot, url, k_EHTTPMethodDELETE, null, MessageDeletedResp);
-    if (request == null) {
-        CreateTimer(2.0, ThisDeleteMessageDelayed, dp);
+public void OnMessageDeleted(HTTPResponse response, DataPack pack, const char[] error)
+{
+    if (response.Status != HTTPStatus_OK)
+    {
+        LogError("Couldn't Send DeleteMessageID - HTTP %i\n%s", response.Status, error);
+        delete pack;
         return;
     }
-    
-    SteamWorks_SetHTTPRequestContextValue(request, dp, UrlToDP(url));
-    
-    DiscordSendRequest(request, url);
-}
 
-public Action ThisDeleteMessageDelayed(Handle timer, any data) {
-    DataPack dp = view_as<DataPack>(data);
-    ResetPack(dp);
-    
-    DiscordBot bot = ReadPackCell(dp);
-    
-    char channelid[32];
-    ReadPackString(dp, channelid, sizeof(channelid));
-    
-    char msgid[32];
-    ReadPackString(dp, msgid, sizeof(msgid));
-    
-    ThisDeleteMessage(bot, channelid, msgid, dp);
-}
+    pack.Reset();
+    DiscordBot bot = view_as<DiscordBot>(pack.ReadCell());
+    Handle plugin = pack.ReadCell();
+    Function cb = pack.ReadFunction();
+    any data = pack.ReadCell();
 
-public int MessageDeletedResp(Handle request, bool failure, int offset, int statuscode, any dp) {
-    if (failure || statuscode != 204) {
-        if (statuscode == 429 || statuscode == 500) {
-            ResetPack(dp);
-            DiscordBot bot = ReadPackCell(dp);
-            
-            char channelid[32];
-            ReadPackString(dp, channelid, sizeof(channelid));
-            
-            char msgid[32];
-            ReadPackString(dp, msgid, sizeof(msgid));
-            
-            ThisDeleteMessage(bot, channelid, msgid, view_as<DataPack>(dp));
-            
-            delete request;
-            return;
-        }
-        LogError("[DISCORD] Couldn't delete message - Fail %i %i", failure, statuscode);
-        delete request;
-        delete view_as<Handle>(dp);
-        return;
-    }
-    
-    ResetPack(dp);
-    DiscordBot bot = ReadPackCell(dp);
-    
-    char channelid[32];
-    ReadPackString(dp, channelid, sizeof(channelid));
-    
-    char msgid[32];
-    ReadPackString(dp, msgid, sizeof(msgid));
-    
-    Handle plugin = view_as<Handle>(ReadPackCell(dp));
-    Function func = ReadPackFunction(dp);
-    any pluginData = ReadPackCell(dp);
-    
-    Handle fForward = INVALID_HANDLE;
-    if (func != INVALID_FUNCTION) {
-        fForward = CreateForward(ET_Ignore, Param_Cell, Param_Cell);
-        AddToForward(fForward, plugin, func);
-        
-        Call_StartForward(fForward);
-        Call_PushCell(bot);
-        Call_PushCell(pluginData);
-        Call_Finish();
-        delete fForward;
-    }
-    
-    delete view_as<Handle>(dp);
-    delete request;
-} 
+    Call_StartFunction(plugin, callback);
+    Call_PushCell(bot);
+    Call_PushCell(data);
+    Call_Finish();
+}

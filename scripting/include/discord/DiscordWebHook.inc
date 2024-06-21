@@ -3,9 +3,9 @@ methodmap DiscordWebHook < JSONObject
     public DiscordWebHook(char[] url)
     {
         JSONObject obj = new JSONObject();
-        obj.SetString("__url", url);
+        obj.SetString("url", url);
         JSONObject data = new JSONObject();
-        obj.Set(data);
+        obj.Set("data", data);
         
         return view_as<DiscordWebHook>(obj);
     }
@@ -19,12 +19,12 @@ methodmap DiscordWebHook < JSONObject
     {
         public get()
         {
-            return this.GetBool("__slack");
+            return this.GetBool("slack");
         }
         
         public set(bool value)
         {
-            this.SetBool("__slack", value);
+            this.SetBool("slack", value);
         }
     }
     
@@ -32,19 +32,19 @@ methodmap DiscordWebHook < JSONObject
     {
         public get()
         {
-            return this.Get("__data");
+            return view_as<JSONObject>(this.Get("data"));
         }
         
         public set(JSONObject value)
         {
-            this.Set("__data", value);
+            this.Set("data", value);
         }
     }
     
     public void Embed(MessageEmbed embed)
     {
         JSONObject data = this.Data;
-        JSONArray embeds = data.Get("embeds");
+        JSONArray embeds = view_as<JSONArray>(data.Get("embeds"));
         
         if (embeds == null)
         {

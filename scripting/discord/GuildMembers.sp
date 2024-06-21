@@ -1,6 +1,3 @@
-/**
- * public native void GetGuildMembers(char[] guild, OnGetMembers fCallback, char[] afterUserID="", int limit=250);
- */
 public int Native_DiscordBot_GetGuildMembers(Handle plugin, int numParams) {
     DiscordBot bot = view_as<DiscordBot>(CloneHandle(GetNativeCell(1)));
     

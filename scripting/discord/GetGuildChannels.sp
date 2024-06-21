@@ -1,22 +1,22 @@
-public int Native_DiscordBot_GetGuildChannels(Handle plugin, int numParams) {
+public int Native_DiscordBot_GetGuildChannels(Handle plugin, int numParams)
+{
+    // Get native params
     DiscordBot bot = GetNativeCell(1);
-    
     char guild[32];
     GetNativeString(2, guild, sizeof(guild));
+    Function cb = GetNativeCell(3);
+    any data = GetNativeCell(4);
+
+    // DataPack
+    DataPack pack = new DataPack();
+    pack.WriteCell(bot);
+    pack.WriteString(guild);
+    pack.WriteCell(plugin);
+    pack.WriteFunction(cb);
+    pack.WriteCell(data);
     
-    Function fCallback = GetNativeCell(3);
-    Function fCallbackAll = GetNativeCell(4);
-    any data = GetNativeCell(5);
+    // Make URL
     
-    DataPack dp = CreateDataPack();
-    WritePackCell(dp, bot);
-    WritePackString(dp, guild);
-    WritePackCell(dp, plugin);
-    WritePackFunction(dp, fCallback);
-    WritePackFunction(dp, fCallbackAll);
-    WritePackCell(dp, data);
-    
-    ThisSendRequest(bot, guild, dp);
 }
 
 static void ThisSendRequest(DiscordBot bot, char[] guild, DataPack dp) {
