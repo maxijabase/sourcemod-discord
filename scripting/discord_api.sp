@@ -3,23 +3,24 @@
 
 #include <sourcemod>
 #include <discord>
-#include <SteamWorks>
+#include <steamworks>
 #include <updater>
 #include <smjansson>
+#include <ripext>
 
-#include "discord/natives.sp"
+#include "discord/Natives.sp"
 #include "discord/DiscordRequest.sp"
 #include "discord/SendMessage.sp"
 #include "discord/GetGuilds.sp"
 #include "discord/GetGuildChannels.sp"
 #include "discord/ListenToChannel.sp"
 #include "discord/SendWebHook.sp"
-#include "discord/reactions.sp"
+#include "discord/Reactions.sp"
 #include "discord/UserObject.sp"
 #include "discord/MessageObject.sp"
 #include "discord/GuildMembers.sp"
 #include "discord/GuildRole.sp"
-#include "discord/deletemessage.sp"
+#include "discord/DeleteMessage.sp"
 
 #define UPDATE_URL "https://raw.githubusercontent.com/maxijabase/sourcemod-discord/master/updatefile.txt"
 
@@ -38,9 +39,7 @@ public Plugin myinfo = {
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
 	CreateNatives();
-	
 	RegPluginLibrary("discord-api");
-	
 	return APLRes_Success;
 }
 
@@ -68,6 +67,7 @@ public int Native_DiscordBot_Token_Get(Handle plugin, int numParams) {
 	static char token[196];
 	JsonObjectGetString(bot, "token", token, sizeof(token));
 	SetNativeString(2, token, GetNativeCell(3));
+	return 0;
 }
 
 stock void BuildAuthHeader(Handle request, DiscordBot Bot) {
@@ -77,7 +77,6 @@ stock void BuildAuthHeader(Handle request, DiscordBot Bot) {
 	FormatEx(buffer, sizeof(buffer), "Bot %s", token);
 	SteamWorks_SetHTTPRequestHeaderValue(request, "Authorization", buffer);
 }
-
 
 stock Handle PrepareRequest(DiscordBot bot, char[] url, EHTTPMethod method=k_EHTTPMethodGET, Handle hJson=null, SteamWorksHTTPDataReceived DataReceived = INVALID_FUNCTION, SteamWorksHTTPRequestCompleted RequestCompleted = INVALID_FUNCTION) {
 	static char stringJson[16384];

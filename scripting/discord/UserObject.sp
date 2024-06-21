@@ -12,13 +12,6 @@ public int Native_DiscordUser_GetUsername(Handle plugin, int numParams) {
 	SetNativeString(2, buffer, GetNativeCell(3));
 }
 
-public int Native_DiscordUser_GetDiscriminator(Handle plugin, int numParams) {
-	Handle hJson = GetNativeCell(1);
-	char buffer[16];
-	JsonObjectGetString(hJson, "discriminator", buffer, sizeof(buffer));
-	SetNativeString(2, buffer, GetNativeCell(3));
-}
-
 public int Native_DiscordUser_GetAvatar(Handle plugin, int numParams) {
 	Handle hJson = GetNativeCell(1);
 	char buffer[256];
