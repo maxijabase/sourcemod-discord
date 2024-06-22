@@ -14,14 +14,14 @@ typeset DiscordGuildsResponseCallback
 
 typeset DiscordGuildChannelsResponseCallback
 {
-	function void (DiscordBot bot, char[] guild, DiscordChannel channel);
-	function void (DiscordBot bot, char[] guild, DiscordChannel channel, any data);
+	function void (DiscordBot bot, char[] guild, DiscordChannelList channels);
+	function void (DiscordBot bot, char[] guild, DiscordChannelList channels, any data);
 }
 
 typeset DiscordGuildRolesResponseCallback
 {
-	function void (DiscordBot bot, char[] guild, RoleList Roles);
-	function void (DiscordBot bot, char[] guild, RoleList Roles, any data);
+	function void (DiscordBot bot, char[] guild, DiscordRoleList roles);
+	function void (DiscordBot bot, char[] guild, DiscordRoleList roles, any data);
 }
 
 typeset DiscordGuildMembersResponseCallback
@@ -52,7 +52,7 @@ typeset DiscordMessageDeletedResponseCallback
 #include "discord/DiscordUser"
 #include "discord/DiscordMessage"
 #include "discord/DiscordChannel"
-#include "discord/DiscordGuildUser"
+#include "discord/DiscordGuildMember"
 #include "discord/DiscordWebHook"
 #include "discord/MessageEmbed"
 

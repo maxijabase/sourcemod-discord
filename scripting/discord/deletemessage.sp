@@ -13,7 +13,7 @@ public int Native_DiscordBot_DeleteMessageID(Handle plugin, int numParams)
     DataPack pack = new DataPack();
     pack.WriteCell(bot);
     pack.WriteCell(plugin);
-    pack.WriteFunction(callback);
+    pack.WriteFunction(cb);
     pack.WriteCell(data);
     
     // Make URL
@@ -42,7 +42,7 @@ public void OnMessageDeleted(HTTPResponse response, DataPack pack, const char[] 
     Function cb = pack.ReadFunction();
     any data = pack.ReadCell();
 
-    Call_StartFunction(plugin, callback);
+    Call_StartFunction(plugin, cb);
     Call_PushCell(bot);
     Call_PushCell(data);
     Call_Finish();

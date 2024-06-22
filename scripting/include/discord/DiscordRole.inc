@@ -1,4 +1,4 @@
-methodmap Role < JSONObject
+methodmap DiscordRole < JSONObject
 {
 	public void GetID(char[] buffer, int maxlength)
 	{
@@ -41,17 +41,10 @@ methodmap Role < JSONObject
 	}
 };
 
-methodmap RoleList < JSONArray
+methodmap DiscordDiscordRoleList < JSONArray
 {
-	property int Size
+	public DiscordRole Get(int i)
 	{
-		public get()
-		{
-			return this.Length;
-		}
-	}
-	public Role Get(int i)
-	{
-		return view_as<Role>(this.Get(i));
+		return view_as<DiscordRole>(this.Get(i));
 	}
 };

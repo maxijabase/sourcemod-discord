@@ -87,6 +87,14 @@ methodmap DiscordChannel < JSONObject
     }
 };
 
+methodmap DiscordChannelList < JSONArray
+{
+    public DiscordChannel Get(int i)
+    {
+        return view_as<DiscordChannel>(this.Get(i));
+    }
+}
+
 enum
 {
     GUILD_TEXT = 0, 

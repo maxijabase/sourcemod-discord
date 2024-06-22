@@ -47,7 +47,7 @@ public void OnGuildsReceived(HTTPResponse response, DataPack pack, const char[] 
     Call_StartFunction(plugin, callback);
     Call_PushCell(bot);
     Call_PushString(guild);
-    Call_PushCell(view_as<RoleList>(response.Data));
+    Call_PushCell(response.Data);
     Call_PushCell(data);
     Call_Finish();
 }

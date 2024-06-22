@@ -77,18 +77,18 @@ public void GuildListGetRoles(DiscordBot bot, char[] id, char[] name, char[] ico
 	}
 }
 
-public void OnGetRoles(DiscordBot bot, char[] guild, RoleList roles, any data) {
+public void OnGetRoles(DiscordBot bot, char[] guild, DiscordRoleList roles, any data) {
 	PrintToChatAll("%i a", data);
 	int client = GetClientOfUserId(data);
 	if(client > 0 && IsClientConnected(client) && IsClientInGame(client)) {
 		PrintToConsole(client, "Roles for guild %s", guild);
 		for(int i = 0; i < roles.Size; i++) {
-			Role role = roles.Get(i);
+			DiscordRole DiscordRole = roles.Get(i);
 			char id[64];
 			char name[64];
-			role.GetID(id, sizeof(id));
-			role.GetName(name, sizeof(name));
-			PrintToConsole(client, "Role %s %s", id, name);
+			DiscordRole.GetID(id, sizeof(id));
+			DiscordRole.GetName(name, sizeof(name));
+			PrintToConsole(client, "DiscordRole %s %s", id, name);
 		}
 	}
 }

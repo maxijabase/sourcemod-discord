@@ -12,7 +12,7 @@ methodmap DiscordWebHook < JSONObject
     
     public void GetUrl(char[] buffer, int maxlength)
     {
-        this.GetString("__url", buffer, maxlength);
+        this.GetString("url", buffer, maxlength);
     }
     
     property bool SlackMode

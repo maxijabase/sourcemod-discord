@@ -1,4 +1,5 @@
-public int Native_DiscordBot_GetGuilds(Handle plugin, int numParams) {
+public int Native_DiscordBot_GetGuilds(Handle plugin, int numParams)
+{
     DiscordBot bot = GetNativeCell(1);
     Function fCallback = GetNativeCell(2);
     Function fCallbackAll = GetNativeCell(3);
@@ -14,12 +15,14 @@ public int Native_DiscordBot_GetGuilds(Handle plugin, int numParams) {
     ThisSendRequest(bot, dp);
 }
 
-static void ThisSendRequest(DiscordBot bot, DataPack dp) {
+static void ThisSendRequest(DiscordBot bot, DataPack dp)
+{
     char url[64];
     FormatEx(url, sizeof(url), "users/@me/guilds");
     
     Handle request = PrepareRequest(bot, url, k_EHTTPMethodGET, null, GetGuildsData);
-    if (request == null) {
+    if (request == null)
+    {
         CreateTimer(2.0, GetGuildsDelayed, dp);
         return;
     }
@@ -29,7 +32,8 @@ static void ThisSendRequest(DiscordBot bot, DataPack dp) {
     DiscordSendRequest(request, url);
 }
 
-public Action GetGuildsDelayed(Handle timer, any data) {
+public Action GetGuildsDelayed(Handle timer, any data)
+{
     DataPack dp = view_as<DataPack>(data);
     ResetPack(dp);
     
@@ -38,9 +42,12 @@ public Action GetGuildsDelayed(Handle timer, any data) {
     ThisSendRequest(bot, dp);
 }
 
-public int GetGuildsData(Handle request, bool failure, int offset, int statuscode, any dp) {
-    if (failure || statuscode != 200) {
-        if (statuscode == 429 || statuscode == 500) {
+public int GetGuildsData(Handle request, bool failure, int offset, int statuscode, any dp)
+{
+    if (failure || statuscode != 200)
+    {
+        if (statuscode == 429 || statuscode == 500)
+        {
             ResetPack(dp);
             DiscordBot bot = ReadPackCell(dp);
             ThisSendRequest(bot, dp);
@@ -57,7 +64,8 @@ public int GetGuildsData(Handle request, bool failure, int offset, int statuscod
     delete request;
 }
 
-public int GetGuildsData_Data(const char[] data, any datapack) {
+public int GetGuildsData_Data(const char[] data, any datapack)
+{
     Handle hJson = json_load(data);
     
     //Read from datapack to get info
@@ -73,12 +81,14 @@ public int GetGuildsData_Data(const char[] data, any datapack) {
     //Create forwards
     Handle fForward = INVALID_HANDLE;
     Handle fForwardAll = INVALID_HANDLE;
-    if (func != INVALID_FUNCTION) {
+    if (func != INVALID_FUNCTION)
+    {
         fForward = CreateForward(ET_Ignore, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_Cell, Param_Cell);
         AddToForward(fForward, plugin, func);
     }
     
-    if (funcAll != INVALID_FUNCTION) {
+    if (funcAll != INVALID_FUNCTION)
+    {
         fForwardAll = CreateForward(ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
         AddToForward(fForwardAll, plugin, funcAll);
     }
@@ -89,7 +99,8 @@ public int GetGuildsData_Data(const char[] data, any datapack) {
     ArrayList alOwner = null;
     ArrayList alPermissions = null;
     
-    if (funcAll != INVALID_FUNCTION) {
+    if (funcAll != INVALID_FUNCTION)
+    {
         alId = CreateArray(32);
         alName = CreateArray(64);
         alIcon = CreateArray(128);
@@ -98,7 +109,8 @@ public int GetGuildsData_Data(const char[] data, any datapack) {
     }
     
     //Loop through json
-    for (int i = 0; i < json_array_size(hJson); i++) {
+    for (int i = 0; i < json_array_size(hJson); i++)
+    {
         Handle hObject = json_array_get(hJson, i);
         
         static char id[32];
@@ -114,7 +126,8 @@ public int GetGuildsData_Data(const char[] data, any datapack) {
         owner = JsonObjectGetBool(hObject, "owner");
         permissions = JsonObjectGetBool(hObject, "permissions");
         
-        if (fForward != INVALID_HANDLE) {
+        if (fForward != INVALID_HANDLE)
+        {
             Call_StartForward(fForward);
             Call_PushCell(bot);
             Call_PushString(id);
@@ -126,7 +139,8 @@ public int GetGuildsData_Data(const char[] data, any datapack) {
             Call_Finish();
         }
         
-        if (fForwardAll != INVALID_HANDLE) {
+        if (fForwardAll != INVALID_HANDLE)
+        {
             alId.PushString(id);
             alName.PushString(name);
             alIcon.PushString(icon);
@@ -137,7 +151,8 @@ public int GetGuildsData_Data(const char[] data, any datapack) {
         delete hObject;
     }
     
-    if (fForwardAll != INVALID_HANDLE) {
+    if (fForwardAll != INVALID_HANDLE)
+    {
         Call_StartForward(fForwardAll);
         Call_PushCell(bot);
         Call_PushCell(alId);
@@ -157,7 +172,8 @@ public int GetGuildsData_Data(const char[] data, any datapack) {
         delete fForwardAll;
     }
     
-    if (fForward != INVALID_HANDLE) {
+    if (fForward != INVALID_HANDLE)
+    {
         delete fForward;
     }
     

@@ -1,6 +1,6 @@
 // https://discord.com/developers/docs/resources/guild#guild-member-object-example-guild-member
 
-methodmap DiscordGuildUser < JSONObject
+methodmap DiscordGuildMember < JSONObject
 {
     public DiscordUser GetUser()
     {
