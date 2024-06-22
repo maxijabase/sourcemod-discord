@@ -14,7 +14,7 @@ methodmap DiscordGuildMember < JSONObject
     
     public JSONArray GetRoles()
     {
-        return this.Get("roles");
+        return view_as<JSONArray>(this.Get("roles"));
     }
     
     public void GetJoinedAt(char[] buffer, int maxlength)
@@ -32,3 +32,11 @@ methodmap DiscordGuildMember < JSONObject
         return this.GetBool("mute");
     }
 };
+
+methodmap DiscordGuildMemberList < JSONArray
+{
+    public DiscordGuildMember Get(int i)
+    {
+        return view_as<DiscordGuildMember>(this.Get(i));
+    }
+}

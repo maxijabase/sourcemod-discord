@@ -41,7 +41,7 @@ methodmap DiscordRole < JSONObject
 	}
 };
 
-methodmap DiscordDiscordRoleList < JSONArray
+methodmap DiscordRoleList < JSONArray
 {
 	public DiscordRole Get(int i)
 	{

@@ -8,8 +8,8 @@
 
 typeset DiscordGuildsResponseCallback
 {
-	function void(DiscordBot bot, char[] id, char[] name, char[] icon, bool owner, int permissions);
-	function void(DiscordBot bot, char[] id, char[] name, char[] icon, bool owner, int permissions, any data);
+	function void(DiscordBot bot, DiscordGuildList guilds);
+	function void(DiscordBot bot, DiscordGuildList guilds, any data);
 }
 
 typeset DiscordGuildChannelsResponseCallback
@@ -48,6 +48,7 @@ typeset DiscordMessageDeletedResponseCallback
 }
 
 #include "discord/DiscordBot"
+#include "discord/DiscordGuild"
 #include "discord/DiscordRole"
 #include "discord/DiscordUser"
 #include "discord/DiscordMessage"
