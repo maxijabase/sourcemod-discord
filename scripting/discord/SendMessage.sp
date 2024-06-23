@@ -64,7 +64,7 @@ static void SendMessage(DiscordBot bot, char[] channel, char[] message, Handle f
     
     json_object_set_new(hJson, "content", json_string(message));
     
-    char url[64];
+    char url[128];
     FormatEx(url, sizeof(url), "channels/%s/messages", channel);
     
     DataPack dpSafety = new DataPack();

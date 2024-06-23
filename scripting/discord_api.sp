@@ -2,7 +2,7 @@
 #pragma dynamic 25000
 
 #include <sourcemod>
-#include "discord"
+#include "include/discord"
 #include <steamworks>
 #include <updater>
 #include <smjansson>

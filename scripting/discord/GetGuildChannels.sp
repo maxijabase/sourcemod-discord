@@ -16,7 +16,7 @@ public int Native_DiscordBot_GetGuildChannels(Handle plugin, int numParams)
     pack.WriteCell(data);
     
     // Make URL
-    char url[64];
+    char url[128];
     Format(url, sizeof(url), "https://discord.com/api/guilds/%s/channels", guild);
 
     // Create and send request

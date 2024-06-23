@@ -248,7 +248,7 @@ methodmap DiscordBot < JSONObject
     
     public native void GetGuildChannels(char[] guild, DiscordGuildChannelsResponseCallback callback, any data = 0);
     
-    public native void GetGuildMembers(char[] guild, DiscordGuildMembersResponseCallback callback, int limit = 250, char[] afterUserID = "", any data = 0);
+    public native void GetGuildMembers(char[] guild, DiscordGuildMembersResponseCallback callback, int limit, char[] afterUserId = "", any data = 0);
     
     public native void GetGuildRoles(char[] guild, DiscordGuildRolesResponseCallback callback, any data = 0);
 };

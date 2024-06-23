@@ -1,10 +1,42 @@
-public int Native_DiscordBot_GetGuildMembers(Handle plugin, int numParams) {
+public int Native_DiscordBot_GetGuildMembers(Handle plugin, int numParams)
+{
+    // Get native params
+    DiscordBot bot = view_as<DiscordBot>(CloneHandle(GetNativeCell(1)));
+    char guild[32];
+    GetNativeString(2, guild, sizeof(guild));
+    Function cb = GetNativeCell(3);
+    int limit = GetNativeCell(4);
+    char after[32];
+    GetNativeString(5, after, sizeof(after));
+    
+    // Datapack
+    DataPack pack = new DataPack();
+    pack.WriteCell(bot);
+    pack.WriteFunction(cb);
+    pack.WriteCell(plugin);
+    
+    // Make URL
+    char url[256];
+    Format(url, sizeof(url), "https://discord.com/api/guilds/%s/members", guild, limit);
+
+    // Create and send request
+    DiscordRequest req = new DiscordRequest(url);
+    req.SetBot(bot);
+    req.AppendQueryParam("limit", limit);
+    req.AppendQueryParam("after", after);
+
+    // 👆 after es de tipo long en la api de discord
+    // tamo hasta lo huevo muchacho
+}
+
+public int Native_DiscordBot_GetGuildMembersAll(Handle plugin, int numParams)
+{
     DiscordBot bot = view_as<DiscordBot>(CloneHandle(GetNativeCell(1)));
     
     char guild[32];
     GetNativeString(2, guild, sizeof(guild));
     
-    Function fCallback = GetNativeCell(3);
+    Function cb = GetNativeCell(3);
     
     int limit = GetNativeCell(4);
     
@@ -18,39 +50,14 @@ public int Native_DiscordBot_GetGuildMembers(Handle plugin, int numParams) {
     json_object_set_new(hData, "afterID", json_string(afterID));
     
     Handle fwd = CreateForward(ET_Ignore, Param_Cell, Param_String, Param_Cell);
-    AddToForward(fwd, plugin, fCallback);
+    AddToForward(fwd, plugin, cb);
     json_object_set_new(hData, "callback", json_integer(view_as<int>(fwd)));
     
     GetMembers(hData);
 }
 
-public int Native_DiscordBot_GetGuildMembersAll(Handle plugin, int numParams) {
-    DiscordBot bot = view_as<DiscordBot>(CloneHandle(GetNativeCell(1)));
-    
-    char guild[32];
-    GetNativeString(2, guild, sizeof(guild));
-    
-    Function fCallback = GetNativeCell(3);
-    
-    int limit = GetNativeCell(4);
-    
-    char afterID[32];
-    GetNativeString(5, afterID, sizeof(afterID));
-    
-    Handle hData = json_object();
-    json_object_set_new(hData, "bot", bot);
-    json_object_set_new(hData, "guild", json_string(guild));
-    json_object_set_new(hData, "limit", json_integer(limit));
-    json_object_set_new(hData, "afterID", json_string(afterID));
-    
-    Handle fwd = CreateForward(ET_Ignore, Param_Cell, Param_String, Param_Cell);
-    AddToForward(fwd, plugin, fCallback);
-    json_object_set_new(hData, "callback", json_integer(view_as<int>(fwd)));
-    
-    GetMembers(hData);
-}
-
-static void GetMembers(Handle hData) {
+static void GetMembers(Handle hData)
+{
     DiscordBot bot = view_as<DiscordBot>(json_object_get(hData, "bot"));
     
     char guild[32];
@@ -62,9 +69,11 @@ static void GetMembers(Handle hData) {
     JsonObjectGetString(hData, "afterID", afterID, sizeof(afterID));
     
     char url[256];
-    if (StrEqual(afterID, "")) {
+    if (StrEqual(afterID, ""))
+    {
         FormatEx(url, sizeof(url), "https://discord.com/api/guilds/%s/members?limit=%i", guild, limit);
-    } else {
+    } else
+    {
         FormatEx(url, sizeof(url), "https://discord.com/api/guilds/%s/members?limit=%i&afterID=%s", guild, limit, afterID);
     }
     
@@ -72,7 +81,8 @@ static void GetMembers(Handle hData) {
     FormatEx(route, sizeof(route), "guild/%s/members", guild);
     
     DiscordRequest request = new DiscordRequest(url, k_EHTTPMethodGET);
-    if (request == null) {
+    if (request == null)
+    {
         delete bot;
         CreateTimer(2.0, SendGetMembers, hData);
         return;
@@ -86,18 +96,23 @@ static void GetMembers(Handle hData) {
     delete bot;
 }
 
-public Action SendGetMembers(Handle timer, any data) {
+public Action SendGetMembers(Handle timer, any data)
+{
     GetMembers(view_as<Handle>(data));
 }
 
 
-public MembersDataReceive(Handle request, bool failure, int offset, int statuscode, any dp) {
-    if (failure || (statuscode != 200)) {
-        if (statuscode == 400) {
+public MembersDataReceive(Handle request, bool failure, int offset, int statuscode, any dp)
+{
+    if (failure || (statuscode != 200))
+    {
+        if (statuscode == 400)
+        {
             PrintToServer("BAD REQUEST");
         }
         
-        if (statuscode == 429 || statuscode == 500) {
+        if (statuscode == 429 || statuscode == 500)
+        {
             GetMembers(dp);
             
             delete request;
@@ -112,7 +127,8 @@ public MembersDataReceive(Handle request, bool failure, int offset, int statusco
     delete request;
 }
 
-public int GetMembersData(const char[] data, any dp) {
+public int GetMembersData(const char[] data, any dp)
+{
     Handle hJson = json_load(data);
     Handle hData = view_as<Handle>(dp);
     DiscordBot bot = view_as<DiscordBot>(json_object_get(hData, "bot"));
@@ -122,7 +138,8 @@ public int GetMembersData(const char[] data, any dp) {
     char guild[32];
     JsonObjectGetString(hData, "guild", guild, sizeof(guild));
     
-    if (fwd != null) {
+    if (fwd != null)
+    {
         Call_StartForward(fwd);
         Call_PushCell(bot);
         Call_PushString(guild);
@@ -131,10 +148,12 @@ public int GetMembersData(const char[] data, any dp) {
     }
     
     delete bot;
-    if (JsonObjectGetBool(hData, "autoPaginate")) {
+    if (JsonObjectGetBool(hData, "autoPaginate"))
+    {
         int size = json_array_size(hJson);
         int limit = JsonObjectGetInt(hData, "limit");
-        if (limit == size) {
+        if (limit == size)
+        {
             Handle hLast = json_array_get(hJson, size - 1);
             char lastID[32];
             json_string_value(hLast, lastID, sizeof(lastID));

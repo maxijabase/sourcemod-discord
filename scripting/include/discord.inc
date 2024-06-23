@@ -26,8 +26,8 @@ typeset DiscordGuildRolesResponseCallback
 
 typeset DiscordGuildMembersResponseCallback
 {
-	function void(DiscordBot bot, char[] guild, JSONArray members);
-	function void(DiscordBot bot, char[] guild, JSONArray members, any data);
+	function void(DiscordBot bot, char[] guild, DiscordGuildMemberList members);
+	function void(DiscordBot bot, char[] guild, DiscordGuildMemberList members, any data);
 }
 
 typeset DiscordMessageReceivedResponseCallback
