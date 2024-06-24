@@ -22,11 +22,11 @@ public any Native_DiscordBot_GetGuildRoles(Handle plugin, int numParams)
     // Create and send request
     DiscordRequest request = new DiscordRequest(url);
     request.SetBot(bot);
-    request.Get(OnGuildsReceived, pack);
+    request.Get(OnGuildRolesReceived, pack);
     return 0;
 }
 
-public void OnGuildsReceived(HTTPResponse response, DataPack pack, const char[] error)
+public void OnGuildRolesReceived(HTTPResponse response, DataPack pack, const char[] error)
 {
     if (response.Status != HTTPStatus_OK)
     {
@@ -44,7 +44,7 @@ public void OnGuildsReceived(HTTPResponse response, DataPack pack, const char[] 
     any data = pack.ReadCell();
     delete pack;
 
-    Call_StartFunction(plugin, callback);
+    Call_StartFunction(plugin, cb);
     Call_PushCell(bot);
     Call_PushString(guild);
     Call_PushCell(response.Data);

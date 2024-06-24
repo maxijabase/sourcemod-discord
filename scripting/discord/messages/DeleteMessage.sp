@@ -1,4 +1,4 @@
-public int Native_DiscordBot_DeleteMessageID(Handle plugin, int numParams)
+public int Native_DiscordBot_DeleteMessage(Handle plugin, int numParams)
 {
     // Get native params
     DiscordBot bot = GetNativeCell(1);
@@ -31,7 +31,7 @@ public void OnMessageDeleted(HTTPResponse response, DataPack pack, const char[] 
 {
     if (response.Status != HTTPStatus_OK)
     {
-        LogError("Couldn't Send DeleteMessageID - HTTP %i\n%s", response.Status, error);
+        LogError("Couldn't Send DeleteMessage - HTTP %i\n%s", response.Status, error);
         delete pack;
         return;
     }

@@ -2,15 +2,14 @@ public int Native_DiscordBot_GetGuildChannels(Handle plugin, int numParams)
 {
     // Get native params
     DiscordBot bot = GetNativeCell(1);
-    char guild[32];
-    GetNativeString(2, guild, sizeof(guild));
+    DiscordGuild guild = GetNativeCell(2);
     Function cb = GetNativeCell(3);
     any data = GetNativeCell(4);
 
     // DataPack
     DataPack pack = new DataPack();
     pack.WriteCell(bot);
-    pack.WriteString(guild);
+    pack.WriteCell(guild);
     pack.WriteCell(plugin);
     pack.WriteFunction(cb);
     pack.WriteCell(data);
@@ -36,8 +35,7 @@ public void OnChannelsReceived(HTTPResponse response, DataPack pack, const char[
 
     pack.Reset();
     DiscordBot bot = view_as<DiscordBot>(pack.ReadCell());
-    char guild[32];
-    pack.ReadString(guild, sizeof(guild));
+    DiscordGuild guild = view_as<DiscordGuild>(pack.ReadCell());
     Handle plugin = pack.ReadCell();
     Function cb = pack.ReadFunction();
     any data = pack.ReadCell();
@@ -45,7 +43,7 @@ public void OnChannelsReceived(HTTPResponse response, DataPack pack, const char[
 
     Call_StartFunction(plugin, cb);
     Call_PushCell(bot);
-    Call_PushString(guild);
+    Call_PushCell(guild);
     Call_PushCell(response.Data);
     Call_PushCell(data);
     Call_Finish();

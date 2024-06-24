@@ -56,10 +56,10 @@ public int Native_DiscordChannel_SendMessage(Handle plugin, int numParams) {
         AddToForward(fForward, plugin, fCallback);
     }
     
-    SendMessage(bot, channelID, message, fForward, data);
+    SsendMessage(bot, channelID, message, fForward, data);
 }
 
-static void SendMessage(DiscordBot bot, char[] channel, char[] message, Handle fForward, any data) {
+static void SsendMessage(DiscordBot bot, char[] channel, char[] message, Handle fForward, any data) {
     Handle hJson = json_object();
     
     json_object_set_new(hJson, "content", json_string(message));
