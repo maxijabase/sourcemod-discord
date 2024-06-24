@@ -1,138 +1,55 @@
-public int Native_DiscordBot_SendMessageToChannel(Handle plugin, int numParams) {
+public int Native_SendMessage(Handle plugin, int numParams)
+{
+    // Get native params
     DiscordBot bot = GetNativeCell(1);
-    char channel[32];
-    static char message[2048];
-    GetNativeString(2, channel, sizeof(channel));
-    GetNativeString(3, message, sizeof(message));
-    
-    Function fCallback = GetNativeCell(4);
+    Function cb = GetNativeCell(2);
+    DiscordChannel channel = GetNativeCell(3);
+    DiscordMessage message = GetNativeCell(4);
     any data = GetNativeCell(5);
-    Handle fForward = null;
-    if (fCallback != INVALID_FUNCTION) {
-        fForward = CreateForward(ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
-        AddToForward(fForward, plugin, fCallback);
-    }
-    
-    SendMessage(bot, channel, message, fForward, data);
-}
 
-public int Native_DiscordBot_SendMessage(Handle plugin, int numParams) {
-    DiscordBot bot = GetNativeCell(1);
-    
-    DiscordChannel Channel = GetNativeCell(2);
-    char channelID[32];
-    Channel.GetID(channelID, sizeof(channelID));
-    
-    static char message[2048];
-    GetNativeString(3, message, sizeof(message));
-    
-    Function fCallback = GetNativeCell(4);
-    any data = GetNativeCell(5);
-    Handle fForward = null;
-    if (fCallback != INVALID_FUNCTION) {
-        fForward = CreateForward(ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
-        AddToForward(fForward, plugin, fCallback);
-    }
-    
-    SendMessage(bot, channelID, message, fForward, data);
-}
+    // Datapack
+    DataPack pack = new DataPack();
+    pack.WriteCell(bot);
+    pack.WriteFunction(cb);
+    pack.WriteCell(plugin);
+    pack.WriteCell(channel);
+    pack.WriteCell(message);
+    pack.WriteCell(data);
 
-public int Native_DiscordChannel_SendMessage(Handle plugin, int numParams) {
-    DiscordChannel channel = view_as<DiscordChannel>(GetNativeCell(1));
-    
-    char channelID[32];
-    channel.GetID(channelID, sizeof(channelID));
-    
-    DiscordBot bot = GetNativeCell(2);
-    
-    static char message[2048];
-    GetNativeString(3, message, sizeof(message));
-    
-    Function fCallback = GetNativeCell(4);
-    any data = GetNativeCell(5);
-    Handle fForward = null;
-    if (fCallback != INVALID_FUNCTION) {
-        fForward = CreateForward(ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
-        AddToForward(fForward, plugin, fCallback);
-    }
-    
-    SsendMessage(bot, channelID, message, fForward, data);
-}
-
-static void SsendMessage(DiscordBot bot, char[] channel, char[] message, Handle fForward, any data) {
-    Handle hJson = json_object();
-    
-    json_object_set_new(hJson, "content", json_string(message));
-    
+    // Make URL
+    char channelId[32];
+    channel.GetID(channelId, sizeof(channelId));
     char url[128];
-    FormatEx(url, sizeof(url), "channels/%s/messages", channel);
-    
-    DataPack dpSafety = new DataPack();
-    WritePackCell(dpSafety, bot);
-    WritePackString(dpSafety, channel);
-    WritePackString(dpSafety, message);
-    WritePackCell(dpSafety, fForward);
-    WritePackCell(dpSafety, data);
-    
-    Handle request = PrepareRequest(bot, url, k_EHTTPMethodPOST, hJson, GetSendMessageData);
-    if (request == null) {
-        delete hJson;
-        CreateTimer(2.0, SendMessageDelayed, dpSafety);
-        return;
-    }
-    
-    SteamWorks_SetHTTPRequestContextValue(request, dpSafety, UrlToDP(url));
-    
-    DiscordSendRequest(request, url);
+    Format(url, sizeof(url), "https://discord.com/api/channels/%s/messages", channelId);
+
+    // Create and send request
+    DiscordRequest req = new DiscordRequest(url);
+    req.SetBot(bot);
+    req.Get(OnMessageSent, pack);
 }
 
-public Action SendMessageDelayed(Handle timer, any data) {
-    DataPack dp = view_as<DataPack>(data);
-    ResetPack(dp);
-    
-    DiscordBot bot = ReadPackCell(dp);
-    
-    char channel[32];
-    ReadPackString(dp, channel, sizeof(channel));
-    
-    char message[2048];
-    ReadPackString(dp, message, sizeof(message));
-    
-    Handle fForward = ReadPackCell(dp);
-    any dataa = ReadPackCell(dp);
-    
-    delete dp;
-    
-    SendMessage(bot, channel, message, fForward, dataa);
-}
-
-public int GetSendMessageData(Handle request, bool failure, int offset, int statuscode, any dp) {
-    if (failure || statuscode != 200) {
-        if (statuscode == 429 || statuscode == 500) {
-            ResetPack(dp);
-            DiscordBot bot = ReadPackCell(dp);
-            
-            char channel[32];
-            ReadPackString(dp, channel, sizeof(channel));
-            
-            char message[2048];
-            ReadPackString(dp, message, sizeof(message));
-            
-            Handle fForward = ReadPackCell(dp);
-            any data = ReadPackCell(dp);
-            
-            delete view_as<Handle>(dp);
-            
-            SendMessage(bot, channel, message, fForward, data);
-            
-            delete request;
-            return;
-        }
-        LogError("[DISCORD] Couldn't Send Message - Fail %i %i", failure, statuscode);
-        delete request;
-        delete view_as<Handle>(dp);
+public void OnMessageSent(HTTPResponse response, DataPack pack, const char[] error)
+{
+    if (response.Status != HTTPStatus_OK)
+    {
+        LogError("Couldn't Send SendMessage - HTTP %i\n%s", response.Status, error);
+        delete pack;
         return;
     }
-    delete request;
-    delete view_as<Handle>(dp);
-} 
+
+    pack.Reset();
+    DiscordBot bot = pack.ReadCell();
+    Function cb = pack.ReadFunction();
+    Handle plugin = pack.ReadCell();
+    DiscordChannel channel = pack.ReadCell();
+    DiscordMessage message = pack.ReadCell();
+    any data = pack.ReadCell();
+    delete pack;
+
+    Call_StartFunction(plugin, cb);
+    Call_PushCell(bot);
+    Call_PushCell(channel);
+    Call_PushCell(message);
+    Call_PushCell(data);
+    Call_Finish();
+}

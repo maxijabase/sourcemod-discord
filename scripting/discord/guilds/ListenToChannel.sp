@@ -1,4 +1,5 @@
-public int Native_DiscordBot_StartTimer(Handle plugin, int numParams) {
+public int Native_StartListenTimer(Handle plugin, int numParams)
+{
     DiscordBot bot = GetNativeCell(1);
     DiscordChannel channel = GetNativeCell(2);
     Function func = GetNativeCell(3);
@@ -15,7 +16,8 @@ public int Native_DiscordBot_StartTimer(Handle plugin, int numParams) {
     GetMessages(hObj);
 }
 
-public void GetMessages(Handle hObject) {
+public void GetMessages(Handle hObject)
+{
     DiscordBot bot = view_as<DiscordBot>(json_object_get(hObject, "bot"));
     DiscordChannel channel = view_as<DiscordChannel>(json_object_get(hObject, "channel"));
     //Handle fwd = view_as<Handle>(json_object_get(hObject, "callback"));
@@ -30,7 +32,8 @@ public void GetMessages(Handle hObject) {
     FormatEx(url, sizeof(url), "channels/%s/messages?limit=%i&after=%s", channelID, 100, lastMessage);
     
     Handle request = PrepareRequest(bot, url, _, null, OnGetMessage);
-    if (request == null) {
+    if (request == null)
+    {
         delete bot;
         delete channel;
         CreateTimer(2.0, GetMessagesDelayed, hObject);
@@ -48,17 +51,22 @@ public void GetMessages(Handle hObject) {
     DiscordSendRequest(request, route);
 }
 
-public Action GetMessagesDelayed(Handle timer, any data) {
+public Action GetMessagesDelayed(Handle timer, any data)
+{
     GetMessages(view_as<Handle>(data));
 }
 
-public Action CheckMessageTimer(Handle timer, any dpt) {
+public Action CheckMessageTimer(Handle timer, any dpt)
+{
     GetMessages(view_as<Handle>(dpt));
 }
 
-public int OnGetMessage(Handle request, bool failure, int offset, int statuscode, any dp) {
-    if (failure || statuscode != 200) {
-        if (statuscode == 429 || statuscode == 500) {
+public int OnGetMessage(Handle request, bool failure, int offset, int statuscode, any dp)
+{
+    if (failure || statuscode != 200)
+    {
+        if (statuscode == 429 || statuscode == 500)
+        {
             GetMessages(view_as<Handle>(dp));
             delete request;
             return;
@@ -75,14 +83,16 @@ public int OnGetMessage(Handle request, bool failure, int offset, int statuscode
     delete request;
 }
 
-public int OnGetMessage_Data(const char[] data, any dpt) {
+public int OnGetMessage_Data(const char[] data, any dpt)
+{
     Handle hObj = view_as<Handle>(dpt);
     
     DiscordBot Bot = view_as<DiscordBot>(json_object_get(hObj, "bot"));
     DiscordChannel channel = view_as<DiscordChannel>(json_object_get(hObj, "channel"));
     Handle fwd = view_as<Handle>(JsonObjectGetInt(hObj, "callback"));
     
-    if (!Bot.IsListeningToChannel(channel) || GetForwardFunctionCount(fwd) == 0) {
+    if (!Bot.IsListeningToChannel(channel) || GetForwardFunctionCount(fwd) == 0)
+    {
         delete Bot;
         delete channel;
         delete hObj;
@@ -92,8 +102,10 @@ public int OnGetMessage_Data(const char[] data, any dpt) {
     
     Handle hJson = json_load(data);
     
-    if (json_is_array(hJson)) {
-        for (int i = json_array_size(hJson) - 1; i >= 0; i--) {
+    if (json_is_array(hJson))
+    {
+        for (int i = json_array_size(hJson) - 1; i >= 0; i--)
+        {
             Handle hObject = json_array_get(hJson, i);
             
             //The reason we find Channel for each message instead of global incase
@@ -103,7 +115,8 @@ public int OnGetMessage_Data(const char[] data, any dpt) {
             
             //Find Channel corresponding to Channel id
             //DiscordChannel Channel = Bot.GetListeningChannelByID(channelID);
-            if (!Bot.IsListeningToChannelID(channelID)) {
+            if (!Bot.IsListeningToChannelID(channelID))
+            {
                 //Channel is no longer listed to, remove any handles & stop
                 delete hObject;
                 delete hJson;
@@ -118,12 +131,14 @@ public int OnGetMessage_Data(const char[] data, any dpt) {
             char id[32];
             JsonObjectGetString(hObject, "id", id, sizeof(id));
             
-            if (i == 0) {
+            if (i == 0)
+            {
                 channel.SetLastMessageID(id);
             }
             
             //Get info and fire forward
-            if (fwd != null) {
+            if (fwd != null)
+            {
                 Call_StartForward(fwd);
                 Call_PushCell(Bot);
                 Call_PushCell(channel);

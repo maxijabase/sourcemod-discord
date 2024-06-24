@@ -3,7 +3,6 @@
 #endif
 #define _discord_included
 
-#include <smjansson>
 #include <ripext>
 
 #include "discord/guild/DiscordGuild"

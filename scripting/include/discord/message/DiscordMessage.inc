@@ -12,7 +12,7 @@ methodmap DiscordMessage < JSONObject
 	
 	public DiscordUser GetAuthor()
 	{
-
+		return view_as<DiscordUser>(this.Get("author"));
 	}
 	
 	public void GetContent(char[] buffer, int maxlength)
@@ -24,7 +24,21 @@ methodmap DiscordMessage < JSONObject
 	{
 		this.GetString("channel_id", buffer, maxlength);
 	}
+
+	public void Embed(MessageEmbed embed)
+	{
+		view_as<DiscordMessage>(this.Get("content"))
+			.Set("embeds", embed);
+	}
 };
+
+methodmap DiscordMessageList < JSONArray
+{
+	public DiscordMessage Get(int i)
+	{
+		return view_as<DiscordMessage>(this.Get(i));
+	}
+}
 
 typeset DiscordMessageReceivedResponseCallback
 { 

@@ -1,4 +1,4 @@
-public int Native_DiscordBot_GetGuildChannels(Handle plugin, int numParams)
+public int Native_GetGuildChannels(Handle plugin, int numParams)
 {
     // Get native params
     DiscordBot bot = GetNativeCell(1);

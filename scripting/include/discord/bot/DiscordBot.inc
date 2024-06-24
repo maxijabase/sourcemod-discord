@@ -28,40 +28,14 @@ methodmap DiscordBot < JSONObject
         }
     }
 
-    public void SendMessage(DiscordMessageSentResponseCallback callback, char[] channel, char[] message, any data = 0)
-    {
-        SendMessage(this, callback, channel, message, data);
-    }
+    public native void Discord_SendMessage(DiscordBot bot, DiscordMessageSentResponseCallback callback, DiscordChannel channel, DiscordMessage message, any data = 0);
+    public native void Discord_EditMessage(DiscordBot bot, DiscordMessageEditedResponseCallback callback, DiscordChannel channel, DiscordMessage message, DiscordMessage newMessage, any data = 0);
+    public native void Discord_DeleteMessage(DiscordBot bot, DiscordMessageDeletedResponseCallback callback, DiscordChannel channel, DiscordMessage message, any data = 0);
+    public native void Discord_GetGuilds(DiscordBot bot, DiscordGuildsResponseCallback callback, any data = 0);
+    public native void Discord_GetGuildChannels(DiscordBot bot, DiscordGuildChannelsResponseCallback callback, DiscordGuild guild, any data = 0);
+    public native void Discord_GetGuildMembers(DiscordBot bot, DiscordGuildMembersResponseCallback callback, DiscordGuild guild, int limit = 1, char[] afterUserId = "", any data = 0);
+    public native void Discord_GetGuildRoles(DiscordBot bot, DiscordGuildRolesResponseCallback callback, DiscordGuild guild, any data = 0);
 
-    public void DeleteMessage(DiscordMessageDeletedResponseCallback callback, char[] channel, char[] messageId, any data = 0)
-    {
-        DeleteMessage(this, callback, channel, messageId, data);
-    }
-
-    public void EditMessage(DiscordMessageEditedResponseCallback callback, char[] channel, char[] messageId, char[] newValue, any data = 0)
-    {
-        EditMessage(this, callback, channel, messageId, newValue, data);
-    }
-
-    public void GetGuilds(DiscordGuildsResponseCallback callback, any data = 0)
-    {
-        GetGuilds(this, callback, data);
-    }
-
-    public void GetGuildChannels(DiscordGuildChannelsResponseCallback callback, DiscordGuild guild, any data = 0)
-    {
-        GetGuildChannels(this, callback, guild, data);
-    }
-
-    public void GetGuildMembers(DiscordGuildMembersResponseCallback callback, DiscordGuild guild, int limit = 1, char[] afterUserId = "", any data = 0)
-    {
-        GetGuildMembers(this, callback, guild, limit, afterUserId, data);
-    }
-
-    public void GetGuildRoles(DiscordGuildRolesResponseCallback callback, DiscordGuild guild, any data = 0)
-    {
-        GetGuildRoles(this, callback, guild, data);
-    }
 };
 
 methodmap DiscordBotListeningChannels < DiscordChannelList
@@ -102,11 +76,3 @@ methodmap DiscordBotListeningChannels < DiscordChannelList
         }
     }
 }
-
-native void SendMessage(DiscordBot bot, DiscordMessageSentResponseCallback callback, char[] channel, char[] message, any data = 0);
-native void DeleteMessage(DiscordBot bot, DiscordMessageDeletedResponseCallback callback, char[] channel, char[] messageId, any data = 0);
-native void EditMessage(DiscordBot bot, DiscordMessageEditedResponseCallback callback, char[] channel, char[] messageId, char[] newValue, any data = 0);
-native void GetGuilds(DiscordBot bot, DiscordGuildsResponseCallback callback, any data = 0);
-native void GetGuildChannels(DiscordBot bot, DiscordGuildChannelsResponseCallback callback, DiscordGuild guild, any data = 0);
-native void GetGuildMembers(DiscordBot bot, DiscordGuildMembersResponseCallback callback, DiscordGuild guild, int limit = 1, char[] afterUserId = "", any data = 0);
-native void GetGuildRoles(DiscordBot bot, DiscordGuildRolesResponseCallback callback, DiscordGuild guild, any data = 0);
