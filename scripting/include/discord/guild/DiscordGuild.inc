@@ -4,12 +4,12 @@ methodmap DiscordGuild < JSONObject
     {
         this.GetString("id", buffer, max);
     }
-
+    
     public void GetName(char[] buffer, int max)
     {
         this.GetString("name", buffer, max);
     }
-
+    
     public void GetIcon(char[] buffer, int max)
     {
         this.GetString("icon", buffer, max);
@@ -26,24 +26,24 @@ methodmap DiscordGuildList < JSONArray
 
 typeset DiscordGuildsResponseCallback
 {
-	function void(DiscordBot bot, DiscordGuildList guilds);
-	function void(DiscordBot bot, DiscordGuildList guilds, any data);
+    function void(DiscordBot bot, DiscordGuildList guilds);
+    function void(DiscordBot bot, DiscordGuildList guilds, any data);
 }
 
 typeset DiscordGuildChannelsResponseCallback
 {
-	function void (DiscordBot bot, DiscordGuild guild, DiscordChannelList channels);
-	function void (DiscordBot bot, DiscordGuild guild, DiscordChannelList channels, any data);
+    function void(DiscordBot bot, DiscordGuild guild, DiscordChannelList channels);
+    function void(DiscordBot bot, DiscordGuild guild, DiscordChannelList channels, any data);
 }
 
 typeset DiscordGuildRolesResponseCallback
 {
-	function void (DiscordBot bot, DiscordGuild guild, DiscordRoleList roles);
-	function void (DiscordBot bot, DiscordGuild guild, DiscordRoleList roles, any data);
+    function void(DiscordBot bot, DiscordGuild guild, DiscordRoleList roles);
+    function void(DiscordBot bot, DiscordGuild guild, DiscordRoleList roles, any data);
 }
 
 typeset DiscordGuildMembersResponseCallback
 {
-	function void(DiscordBot bot, DiscordGuild guild, DiscordGuildMemberList members);
-	function void(DiscordBot bot, DiscordGuild guild, DiscordGuildMemberList members, any data);
-}
+    function void(DiscordBot bot, DiscordGuild guild, DiscordGuildMemberList members);
+    function void(DiscordBot bot, DiscordGuild guild, DiscordGuildMemberList members, any data);
+} 

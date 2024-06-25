@@ -5,7 +5,7 @@ methodmap DiscordUser < JSONObject
         JSONObject obj = new JSONObject();
         return view_as<DiscordUser>(obj);
     }
-
+    
     public void GetID(char[] buffer, int maxlength)
     {
         this.GetString("id", buffer, maxlength);
@@ -35,4 +35,4 @@ methodmap DiscordUser < JSONObject
     {
         return this.GetBool("bot");
     }
-};
+}; 

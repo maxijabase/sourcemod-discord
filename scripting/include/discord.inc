@@ -1,5 +1,5 @@
 #if defined _discord_included
-	#endinput
+#endinput
 #endif
 #define _discord_included
 
@@ -15,20 +15,20 @@
 #include "discord/message/MessageEmbed"
 #include "discord/bot/DiscordBot"
 
-public SharedPlugin __pl_discordapi =
+public SharedPlugin __pl_discordapi = 
 {
-	name = "discord-api",
-	file = "discord-api.smx",
-	#if defined REQUIRE_PLUGIN
-	required = 1,
-	#else
-	required = 0,
-	#endif
+    name = "discord-api", 
+    file = "discord-api.smx", 
+    #if defined REQUIRE_PLUGIN
+    required = 1, 
+    #else
+    required = 0, 
+    #endif
 };
 
 #if !defined REQUIRE_PLUGIN
 public void __pl_discordapi_SetNTVOptional()
 {
-
+    
 }
 #endif

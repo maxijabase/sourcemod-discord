@@ -125,13 +125,13 @@ methodmap MessageEmbed < JSONObject
         field.SetString("name", name);
         field.SetString("value", value);
         field.SetBool("inline", inline);
-
+        
         JSONArray fields = this.Fields;
         if (fields == null)
         {
             fields = new JSONArray();
         }
-
+        
         fields.Push(field);
         this.Fields = fields;
     }

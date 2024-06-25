@@ -11,12 +11,11 @@
 #include "discord/guilds/GetGuilds.sp"
 #include "discord/guilds/GetGuildChannels.sp"
 #include "discord/guilds/ListenToChannel.sp"
-#include "discord/guilds/GuildMembers.sp"
-#include "discord/guilds/GuildRole.sp"
+#include "discord/guilds/GetGuildMembers.sp"
+#include "discord/guilds/GetGuildRoles.sp"
 #include "discord/messages/SendMessage.sp"
 #include "discord/messages/EditMessage.sp"
 #include "discord/messages/DeleteMessage.sp"
-#include "discord/messages/Reactions.sp"
 #include "discord/webhooks/SendWebHook.sp"
 #include "discord/Natives.sp"
 #include "discord/DiscordRequest.sp"
@@ -40,10 +39,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
-    hRateLeft = new StringMap();
-    hRateReset = new StringMap();
-    hRateLimit = new StringMap();
-    
     if (LibraryExists("updater"))
     {
         Updater_AddPlugin(UPDATE_URL);
@@ -56,4 +51,4 @@ public void OnLibraryAdded(const char[] name)
     {
         Updater_AddPlugin(UPDATE_URL);
     }
-}
+} 

@@ -6,23 +6,6 @@ methodmap DiscordChannel < JSONObject
         return view_as<DiscordChannel>(obj);
     }
     
-    public native void SendMessage(DiscordBot Bot, char[] message, DiscordMessageSentResponseCallback callback, any data = 0);
-    
-    public void GetGuildID(char[] buffer, int maxlength)
-    {
-        this.GetString("guild_id", buffer, maxlength);
-    }
-    
-    public void GetID(char[] buffer, int maxlength)
-    {
-        this.GetString("id", buffer, maxlength);
-    }
-    
-    public void GetName(char[] buffer, int maxlength)
-    {
-        this.GetString("name", buffer, maxlength);
-    }
-    
     property int Position
     {
         public get()
@@ -39,26 +22,11 @@ methodmap DiscordChannel < JSONObject
         }
     }
     
-    public void GetTopic(char[] buffer, int maxlength)
-    {
-        this.GetString("topic", buffer, maxlength);
-    }
-    
-    public void GetLastMessageID(char[] buffer, int maxlength)
-    {
-        this.GetString("last_message_id", buffer, maxlength);
-    }
-    
-    public void SetLastMessageID(const char[] id)
-    {
-        json_object_set_new(this, "last_message_id", json_string(id));
-    }
-    
-    property int Type
+    property ChannelType Type
     {
         public get()
         {
-            return this.GetInt("type");
+            return view_as<ChannelType>(this.GetInt("type"));
         }
     }
     
@@ -85,6 +53,36 @@ methodmap DiscordChannel < JSONObject
             return this.Type == GUILD_TEXT;
         }
     }
+    
+    public void GetGuildID(char[] buffer, int maxlength)
+    {
+        this.GetString("guild_id", buffer, maxlength);
+    }
+    
+    public void GetID(char[] buffer, int maxlength)
+    {
+        this.GetString("id", buffer, maxlength);
+    }
+    
+    public void GetName(char[] buffer, int maxlength)
+    {
+        this.GetString("name", buffer, maxlength);
+    }
+    
+    public void GetTopic(char[] buffer, int maxlength)
+    {
+        this.GetString("topic", buffer, maxlength);
+    }
+    
+    public void GetLastMessageID(char[] buffer, int maxlength)
+    {
+        this.GetString("last_message_id", buffer, maxlength);
+    }
+    
+    public void SetLastMessageID(const char[] id)
+    {
+        this.SetString("last_message_id", id);
+    }
 };
 
 methodmap DiscordChannelList < JSONArray
@@ -95,7 +93,7 @@ methodmap DiscordChannelList < JSONArray
     }
 }
 
-enum
+enum ChannelType
 {
     GUILD_TEXT = 0, 
     DM, 

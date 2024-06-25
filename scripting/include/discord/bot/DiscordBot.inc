@@ -19,36 +19,38 @@ methodmap DiscordBot < JSONObject
             this.SetFloat("messageCheckInterval", value);
         }
     }
-
+    
     property DiscordBotListeningChannels ListeningChannels
     {
         public get()
         {
             return view_as<DiscordBotListeningChannels>(this.Get("listeningChannels"));
         }
+        
+        public set(DiscordBotListeningChannels channels)
+        {
+            this.ListeningChannels = channels;
+        }
     }
-
-    public native void Discord_SendMessage(DiscordBot bot, DiscordMessageSentResponseCallback callback, DiscordChannel channel, DiscordMessage message, any data = 0);
-    public native void Discord_EditMessage(DiscordBot bot, DiscordMessageEditedResponseCallback callback, DiscordChannel channel, DiscordMessage message, DiscordMessage newMessage, any data = 0);
-    public native void Discord_DeleteMessage(DiscordBot bot, DiscordMessageDeletedResponseCallback callback, DiscordChannel channel, DiscordMessage message, any data = 0);
-    public native void Discord_GetGuilds(DiscordBot bot, DiscordGuildsResponseCallback callback, any data = 0);
-    public native void Discord_GetGuildChannels(DiscordBot bot, DiscordGuildChannelsResponseCallback callback, DiscordGuild guild, any data = 0);
-    public native void Discord_GetGuildMembers(DiscordBot bot, DiscordGuildMembersResponseCallback callback, DiscordGuild guild, int limit = 1, char[] afterUserId = "", any data = 0);
-    public native void Discord_GetGuildRoles(DiscordBot bot, DiscordGuildRolesResponseCallback callback, DiscordGuild guild, any data = 0);
-
+    
+    public native void SendMessage(DiscordMessageSentResponseCallback callback, DiscordChannel channel, DiscordMessage message, any data = 0);
+    public native void EditMessage(DiscordMessageEditedResponseCallback callback, DiscordChannel channel, DiscordMessage message, DiscordMessage newMessage, any data = 0);
+    public native void DeleteMessage(DiscordMessageDeletedResponseCallback callback, DiscordChannel channel, DiscordMessage message, any data = 0);
+    public native void GetGuilds(DiscordGuildsResponseCallback callback, any data = 0);
+    public native void GetGuildChannels(DiscordGuildChannelsResponseCallback callback, DiscordGuild guild, any data = 0);
+    public native void GetGuildMembers(DiscordGuildMembersResponseCallback callback, DiscordGuild guild, int limit = 1, char[] afterUserId = "", any data = 0);
+    public native void GetGuildRoles(DiscordGuildRolesResponseCallback callback, DiscordGuild guild, any data = 0);
 };
 
 methodmap DiscordBotListeningChannels < DiscordChannelList
 {
-    public native void StartTimer(DiscordChannel channel, DiscordMessageReceivedResponseCallback callback);
-
-    public void Start(DiscordChannel channel, DiscordMessageReceivedResponseCallback callback)
+    public void StartListening(DiscordBot bot, DiscordChannel channel, DiscordMessageReceivedResponseCallback callback)
     {
         this.Push(channel);
-        this.StartTimer(channel, callback);
+        StartListeningToChannel(bot, channel, callback);
     }
-
-    public void Stop(const char[] id)
+    
+    public void StopListening(const char[] id)
     {
         if (!this.Length)
         {
@@ -67,8 +69,27 @@ methodmap DiscordBotListeningChannels < DiscordChannelList
             }
         }
     }
-
-    public void StopAll()
+    
+    public bool IsListening(DiscordChannel channel)
+    {
+        bool exists = false;
+        char id[32];
+        channel.GetID(id, sizeof(id))
+        for (int i = 0; i <= this.Length; i++)
+        {
+            DiscordChannel tempChannel = this.Get(i);
+            char id1[32];
+            tempChannel.GetID(id1, sizeof(id1));
+            if (!strcmp(id, id1))
+            {
+                exists = true;
+                break;
+            }
+        }
+        return exists;
+    }
+    
+    public void Clear()
     {
         if (this && this.Length)
         {
@@ -76,3 +97,5 @@ methodmap DiscordBotListeningChannels < DiscordChannelList
         }
     }
 }
+
+native void StartListeningToChannel(DiscordBot bot, DiscordChannel channel, DiscordMessageReceivedResponseCallback callback);

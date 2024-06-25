@@ -1,160 +1,103 @@
-public int Native_StartListenTimer(Handle plugin, int numParams)
+public int Native_StartListeningToChannel(Handle plugin, int numParams)
 {
+    // Get native params
     DiscordBot bot = GetNativeCell(1);
     DiscordChannel channel = GetNativeCell(2);
-    Function func = GetNativeCell(3);
+    Function cb = GetNativeCell(3);
+    any data = GetNativeCell(4);
     
-    Handle hObj = json_object();
-    json_object_set(hObj, "bot", bot);
-    json_object_set(hObj, "channel", channel);
+    // Create object and store info to pass it around the timer
+    JSONObject listenInfo = new JSONObject();
+    listenInfo.SetInt("bot", view_as<int>(bot));
+    listenInfo.SetInt("channel", view_as<int>(channel));
+    listenInfo.SetInt("cb", view_as<int>(cb));
+    listenInfo.SetInt("plugin", view_as<int>(plugin));
+    listenInfo.SetInt("data", view_as<int>(data));
     
-    Handle fwd = CreateForward(ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
-    AddToForward(fwd, plugin, func);
+    // Call
+    GetMessages(listenInfo);
     
-    json_object_set_new(hObj, "callback", json_integer(view_as<int>(fwd)));
-    
-    GetMessages(hObj);
+    return 0;
 }
 
-public void GetMessages(Handle hObject)
+public void GetMessages(JSONObject listenInfo)
 {
-    DiscordBot bot = view_as<DiscordBot>(json_object_get(hObject, "bot"));
-    DiscordChannel channel = view_as<DiscordChannel>(json_object_get(hObject, "channel"));
-    //Handle fwd = view_as<Handle>(json_object_get(hObject, "callback"));
+    // Check if we're still listening to this channel
+    DiscordBot bot = view_as<DiscordBot>(listenInfo.GetInt("bot"));
+    DiscordChannel channel = view_as<DiscordChannel>(listenInfo.GetInt("channel"));
+    if (!bot.ListeningChannels.IsListening(channel))
+    {
+        return;
+    }
     
-    char channelID[32];
-    channel.GetID(channelID, sizeof(channelID));
+    // Make URL
+    char channelId[32];
+    channel.GetID(channelId, sizeof(channelId));
     
-    char lastMessage[64];
-    channel.GetLastMessageID(lastMessage, sizeof(lastMessage));
+    char lastMessageId[32];
+    channel.GetLastMessageID(lastMessageId, sizeof(lastMessageId));
     
     char url[256];
-    FormatEx(url, sizeof(url), "channels/%s/messages?limit=%i&after=%s", channelID, 100, lastMessage);
+    Format(url, sizeof(url), "https://discord.com/api/channels/%s/messages", channelId);
     
-    Handle request = PrepareRequest(bot, url, _, null, OnGetMessage);
-    if (request == null)
+    // Create and send request
+    DiscordRequest req = new DiscordRequest(url);
+    req.SetBot(bot);
+    req.AppendQueryParam("after", lastMessageId);
+    req.AppendQueryParam("limit", "%i", 100);
+    req.Get(OnMessagesReceived, listenInfo);
+}
+
+public void OnMessagesReceived(HTTPResponse response, JSONObject listenInfo, const char[] error)
+{
+    if (response.Status != HTTPStatus_OK)
     {
-        delete bot;
-        delete channel;
-        CreateTimer(2.0, GetMessagesDelayed, hObject);
+        LogError("Couldn't Get Messages - HTTP %i\n%s", response.Status, error);
+        delete listenInfo;
         return;
     }
     
-    char route[128];
-    FormatEx(route, sizeof(route), "channels/%s", channelID);
+    DiscordBot bot = view_as<DiscordBot>(listenInfo.GetInt("bot"));
+    DiscordChannel channel = view_as<DiscordChannel>(listenInfo.GetInt("channel"));
+    Handle plugin = view_as<Handle>(listenInfo.GetInt("plugin"));
+    Function cb = view_as<Function>(listenInfo.GetInt("cb"));
+    any data = view_as<any>(listenInfo.GetInt("data"));
     
-    SteamWorks_SetHTTPRequestContextValue(request, hObject, UrlToDP(route));
+    DiscordMessageList messages = view_as<DiscordMessageList>(response.Data);
     
-    delete bot;
-    delete channel;
-    
-    DiscordSendRequest(request, route);
-}
-
-public Action GetMessagesDelayed(Handle timer, any data)
-{
-    GetMessages(view_as<Handle>(data));
-}
-
-public Action CheckMessageTimer(Handle timer, any dpt)
-{
-    GetMessages(view_as<Handle>(dpt));
-}
-
-public int OnGetMessage(Handle request, bool failure, int offset, int statuscode, any dp)
-{
-    if (failure || statuscode != 200)
+    if (messages.Length > 0)
     {
-        if (statuscode == 429 || statuscode == 500)
+        // There are new messages
+        for (int i = messages.Length - 1; i >= 0; i--)
         {
-            GetMessages(view_as<Handle>(dp));
-            delete request;
-            return;
-        }
-        LogError("[DISCORD] Couldn't Retrieve Messages - Fail %i %i", failure, statuscode);
-        delete request;
-        Handle fwd = view_as<Handle>(JsonObjectGetInt(view_as<Handle>(dp), "callback"));
-        if (fwd != null)delete fwd;
-        delete view_as<Handle>(dp);
-        return;
-    }
-    
-    SteamWorks_GetHTTPResponseBodyCallback(request, OnGetMessage_Data, dp);
-    delete request;
-}
-
-public int OnGetMessage_Data(const char[] data, any dpt)
-{
-    Handle hObj = view_as<Handle>(dpt);
-    
-    DiscordBot Bot = view_as<DiscordBot>(json_object_get(hObj, "bot"));
-    DiscordChannel channel = view_as<DiscordChannel>(json_object_get(hObj, "channel"));
-    Handle fwd = view_as<Handle>(JsonObjectGetInt(hObj, "callback"));
-    
-    if (!Bot.IsListeningToChannel(channel) || GetForwardFunctionCount(fwd) == 0)
-    {
-        delete Bot;
-        delete channel;
-        delete hObj;
-        delete fwd;
-        return;
-    }
-    
-    Handle hJson = json_load(data);
-    
-    if (json_is_array(hJson))
-    {
-        for (int i = json_array_size(hJson) - 1; i >= 0; i--)
-        {
-            Handle hObject = json_array_get(hJson, i);
+            // Get message
+            DiscordMessage msg = messages.Get(i);
             
-            //The reason we find Channel for each message instead of global incase
-            //Bot stops listening for the channel while we are still sending messages
-            char channelID[32];
-            JsonObjectGetString(hObject, "channel_id", channelID, sizeof(channelID));
+            // Get message ID
+            char msgId[32];
+            msg.GetID(msgId, sizeof(msgId));
             
-            //Find Channel corresponding to Channel id
-            //DiscordChannel Channel = Bot.GetListeningChannelByID(channelID);
-            if (!Bot.IsListeningToChannelID(channelID))
-            {
-                //Channel is no longer listed to, remove any handles & stop
-                delete hObject;
-                delete hJson;
-                
-                delete fwd;
-                delete Bot;
-                delete channel;
-                delete hObj;
-                return;
-            }
-            
-            char id[32];
-            JsonObjectGetString(hObject, "id", id, sizeof(id));
-            
+            // If it's the last message, set it to the channel
             if (i == 0)
             {
-                channel.SetLastMessageID(id);
+                channel.SetLastMessageID(msgId);
             }
             
-            //Get info and fire forward
-            if (fwd != null)
-            {
-                Call_StartForward(fwd);
-                Call_PushCell(Bot);
-                Call_PushCell(channel);
-                Call_PushCell(view_as<DiscordMessage>(hObject));
-                Call_Finish();
-            }
-            
-            delete hObject;
+            // Call native
+            Call_StartFunction(plugin, cb);
+            Call_PushCell(bot);
+            Call_PushCell(channel);
+            Call_PushCell(msg);
+            Call_PushCell(data);
+            Call_Finish();
         }
     }
     
-    CreateTimer(Bot.MessageCheckInterval, CheckMessageTimer, hObj);
-    
-    delete Bot;
-    delete channel;
-    
-    
-    delete hJson;
+    CreateTimer(bot.MessageCheckInterval, OnTimerElapsed, listenInfo);
+}
+
+public Action OnTimerElapsed(Handle timer, JSONObject listenInfo)
+{
+    GetMessages(listenInfo);
+    return Plugin_Continue;
 } 
